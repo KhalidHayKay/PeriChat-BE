@@ -3,6 +3,9 @@
 # Exit immediately on error
 set -e
 
+# Increase file descriptor limit
+ulimit -n 10000 2>/dev/null || echo "Could not set ulimit (requires privileged mode)"
+
 echo "Running migrations against DB..."
 php artisan migrate --force
 
