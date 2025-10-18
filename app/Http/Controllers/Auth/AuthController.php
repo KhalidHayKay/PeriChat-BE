@@ -23,16 +23,6 @@ class AuthController extends Controller
 
         return response()->json($response->data, $response->code);
     }
-
-    public function socialLogin(Request $request)
-    {
-        $request->validate(['firebase_token' => 'required|string']);
-
-        $response = $this->service->sLogin($request->firebase_token);
-
-        return response()->json($response->data, $response->code);
-    }
-
     public function register(RegisterUserRequest $request): JsonResponse
     {
         $data = $request->validated();

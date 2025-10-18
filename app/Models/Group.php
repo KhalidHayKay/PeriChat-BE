@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use App\Enums\ConversationTypeEnum;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -71,8 +68,7 @@ class Group extends Model
         $query = DB::table('group_user')
             ->select('unread_messages_count')
             ->where('group_id', $this->id)
-            ->where('user_id', Auth::id())
-        ;
+            ->where('user_id', Auth::id());
 
         return $query->first()?->unread_messages_count;
     }

@@ -2,11 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\ConversationTypeEnum;
-use App\Models\Conversation;
-use App\Models\Group;
-use App\Models\Message;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,6 +19,5 @@ class ConversationFactory extends Factory
         return [
             'created_at' => $this->faker->dateTimeBetween('-1 year'),
         ];
-
     }
 }

@@ -4,10 +4,11 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Message;
+use App\Events\MessageSent;
 use Illuminate\Support\Str;
 use App\Models\Conversation;
-use App\Events\MessageSent;
 use App\Models\MessageAttachment;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class MessageService
@@ -28,7 +29,7 @@ class MessageService
 
         return $conversation->messages()
             ->with(['conversation', 'sender', 'attachments'])
-            ->where('id', '<', $lastMessage->id)
+            ->where('created_at', '<', $lastMessage->created_at)
             ->latest()
             ->simplePaginate(10);
     }
@@ -36,11 +37,10 @@ class MessageService
     public function store(array $verData, Conversation $conversation, User $user): Message
     {
         $verData['sender_id'] = $user->id;
-        $verData['read_at']   = now();
 
         $files = $verData['attachments'] ?? null;
         unset($verData['attachments']);
-
+        // dd($verData);
         $message = $conversation->messages()->create($verData);
 
         if ($files) {
@@ -51,6 +51,52 @@ class MessageService
         MessageSent::dispatch($message);
 
         return $message;
+    }
+
+
+    public function resetUnread(Conversation $conversation, User $user)
+    {
+        $this->resolveUnreadQuery($conversation, $user)
+            ->update(['unread_messages_count' => 0]);
+    }
+
+    public function incrementUnreadSmart(Conversation $conversation, Message $message)
+    {
+        if ($message->receiver_id) {
+            // Private message
+            $receiver = User::findOrFail($message->receiver_id);
+            $this->incrementUnread($conversation, $receiver);
+        } else {
+            // Group message
+            $this->incrementUnreadForGroup($conversation, $message->sender_id);
+        }
+    }
+
+    public function incrementUnread(Conversation $conversation, User $receiver)
+    {
+        $this->resolveUnreadQuery($conversation, $receiver)
+            ->increment('unread_messages_count');
+    }
+
+    public function incrementUnreadForGroup(Conversation $conversation, int $senderId)
+    {
+        DB::table('group_user')
+            ->where('group_id', $conversation->group_id)
+            ->where('user_id', '!=', $senderId) // don’t increment for sender
+            ->increment('unread_messages_count');
+    }
+
+    private function resolveUnreadQuery(Conversation $conversation, User $user)
+    {
+        $map = [
+            'table' => $conversation->group_id ? 'group_user' : 'user_conversation',
+            'foreign_key' => $conversation->group_id ? 'group_id' : 'conversation_id',
+            'foreign_value' => $conversation->group_id ? $conversation->group_id : $conversation->id,
+        ];
+
+        return DB::table($map['table'])
+            ->where($map['foreign_key'], $map['foreign_value'])
+            ->where('user_id', $user->id);
     }
 
     private function handleAttachments(array $files, int $messageId): array

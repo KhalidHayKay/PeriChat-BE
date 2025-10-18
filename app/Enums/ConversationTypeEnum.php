@@ -13,6 +13,6 @@ enum ConversationTypeEnum: string
 
     public static function isPrivate(Conversation $conversation): bool
     {
-        return $conversation->type === static::PRIVATE ->value;
+        return $conversation->type === static::PRIVATE->value;
     }
 }

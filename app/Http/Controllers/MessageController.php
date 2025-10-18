@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Message;
 use App\Models\Conversation;
 use Illuminate\Http\Request;
@@ -34,5 +35,25 @@ class MessageController extends Controller
         $message = $this->service->store($data, $conversation, $request->user());
 
         return new MessageResource($message);
+    }
+
+    public function markAsRead(Request $request, Conversation $conversation)
+    {
+        $this->service->resetUnread($conversation, $request->user());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Conversation marked as read.'
+        ]);
+    }
+
+    public function incrementUnread(Request $request, Conversation $conversation, Message $message)
+    {
+        $this->service->incrementUnreadSmart($conversation, $message);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Unread count incremented successfully.',
+        ]);
     }
 }

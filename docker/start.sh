@@ -6,8 +6,9 @@ set -e
 echo "Running migrations against DB..."
 php artisan migrate --force
 
-echo "Starting PHP-FPM..."
-php-fpm -D
+echo "Clearing and caching config..."
+php artisan config:cache
+php artisan route:cache
 
-echo "Starting Nginx..."
-nginx -g "daemon off;"
+echo "Starting Supervisor (manages PHP-FPM, Nginx, Reverb, Queue)..."
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

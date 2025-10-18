@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Enums\ConversationTypeEnum;
 use App\Http\Resources\MessageResource;
 use App\Models\Message;
 use Illuminate\Broadcasting\Channel;
@@ -43,7 +42,7 @@ class MessageSent implements ShouldBroadcastNow
         $m        = $this->message;
         $channels = [];
 
-        if ($m->conversation->type === ConversationTypeEnum::GROUP->value) {
+        if ($m->conversation->group_id) {
             $channels[] = new PrivateChannel('message.group.' . $m->conversation->group_id);
         } else {
             $channels[] = new PrivateChannel('message.private.' . collect([$m->sender_id, $m->receiver_id])
