@@ -19,6 +19,10 @@ Route::prefix('/auth')->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('/conversation')->group(function () {
         Route::get('/subjects', [ConversationController::class, 'index']);
+        Route::get('/new/users', [ConversationController::class, 'users']);
+        Route::get('/new/groups', [ConversationController::class, 'groups']);
+        Route::get('/new/group-users', [ConversationController::class, 'groupUsers']);
+
     });
 
     Route::prefix('/messaging/conversation/{conversation}')->group(function () {
