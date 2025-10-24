@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->longText('description')->nullable();
             $table->string('avatar')->nullable();
-            $table->boolean('is_private');
+            $table->boolean('is_private')->default(false);
             $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
