@@ -21,9 +21,10 @@ class GroupService
 
         $conversation = Conversation::create(['group_id' => $group->id]);
 
-        GroupCreated::dispatch($group, $conversation);
+        $subject = $this->constructSubject($group, $user, $conversation);
+        GroupCreated::dispatch($group, $subject);
 
-        return ['group' => $group, 'conversation' => $conversation];
+        return $subject;
     }
 
     public function edit(array $data, Group $group)
@@ -40,5 +41,21 @@ class GroupService
         MemberJoined::dispatch($group, $user);
 
         return $group;
+    }
+
+    private function constructSubject(Group $group, User $user, Conversation $conversation)
+    {
+        return (object) [
+            'id'                            => $conversation->id,
+            'name'                          => $group->name,
+            'avatar'                        => $group->avatar,
+            'type'                          => 'group',
+            'type_id'                       => $group->id,
+            'last_message'                  => "{$user->name} created this group",
+            'last_message_attachment_count' => 0,
+            'last_message_date'             => $group->created_at,
+            'last_message_sender'           => 0,
+            'unread_messages_count'         => 0,
+        ];
     }
 }

@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Group;
+use App\Models\Message;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\DB;
 use App\Events\ConversationCreated;
 use Illuminate\Database\Query\Builder;
+use App\Http\Resources\ConversationSubjectResource;
 
 class ConversationService
 {
@@ -67,18 +69,48 @@ class ConversationService
     }
 
     public function createWithFirstMessage(
-        array $data,
         User $user,
+        User $otherUser,
+        array $data,
         MessageService $messageService,
-    ): Conversation {
+    ): array {
         $conversation = Conversation::create();
-        $conversation->users()->attach([$user->id, $data['receiver_id']]);
+        $conversation->users()->attach([$user->id, $otherUser->id]);
 
-        $message = $messageService->store($data, $conversation, $user);
+        $data['receiver_id'] = $otherUser->id;
+        $message             = $messageService->store($data, $conversation, $user);
 
-        ConversationCreated::dispatch($conversation, $message);
+        $subject = $this->constructSubject(
+            $user,
+            $message,
+            $conversation,
+        );
 
-        return $conversation->load('messages');
+        ConversationCreated::dispatch($subject, $message);
+
+        $subject = $this->constructSubject(
+            $otherUser,
+            $message,
+            $conversation,
+        );
+
+        return [$subject, $message];
+    }
+
+    private function constructSubject(User $user, Message $message, Conversation $conversation)
+    {
+        return (object) [
+            'id'                            => $conversation->id,
+            'name'                          => $user->name,
+            'avatar'                        => $user->avatar,
+            'type'                          => 'private',
+            'type_id'                       => $user->id,
+            'last_message'                  => $message->message,
+            'last_message_attachment_count' => $message->attachments()->count(),
+            'last_message_date'             => $message->created_at,
+            'last_message_sender'           => $message->sender_id,
+            'unread_messages_count'         => 0,
+        ];
     }
 
     private function getPrivateSubjects(User $user)

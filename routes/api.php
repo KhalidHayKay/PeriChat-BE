@@ -23,7 +23,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/new/users', [ConversationController::class, 'users']);
         Route::get('/new/groups', [ConversationController::class, 'groups']);
         Route::get('/new/group-users', [ConversationController::class, 'groupUsers']);
-        Route::post('/create', [ConversationController::class, 'create']);
+        Route::post('/create/private/{user}', [ConversationController::class, 'create']);
     });
 
     Route::prefix('/group')->group(function () {

@@ -23,7 +23,6 @@ class CreateConversationRequest extends FormRequest
     {
         return [
             'message'       => 'nullable|string|max:5000|required_without:attachment',
-            'receiver_id'   => 'required_without:group_id|nullable|exists:users,id',
             'attachments'   => 'nullable|array|max:10|required_without:message',
             'attachments.*' => 'file|max:102400',
         ];

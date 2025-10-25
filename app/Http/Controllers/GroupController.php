@@ -6,6 +6,7 @@ use App\Models\Group;
 use Illuminate\Http\Request;
 use App\Services\GroupService;
 use App\Http\Resources\GroupResource;
+use App\Http\Resources\ConversationSubjectResource;
 
 class GroupController extends Controller
 {
@@ -19,9 +20,9 @@ class GroupController extends Controller
             'members.*' => 'exists:users,id',
         ]);
 
-        $data = $this->service->make($data, $request->user());
+        $subject = $this->service->make($data, $request->user());
 
-        return response()->json($data);
+        return ConversationSubjectResource::make($subject);
     }
 
     public function update(Request $request, Group $group)

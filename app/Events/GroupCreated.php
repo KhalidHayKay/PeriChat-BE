@@ -11,6 +11,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use App\Http\Resources\ConversationSubjectResource;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
@@ -23,7 +24,7 @@ class GroupCreated implements ShouldBroadcastNow
      */
     public function __construct(
         public readonly Group $group,
-        public readonly Conversation $conversation,
+        public readonly object $conversationSubject,
     ) {
         //
     }
@@ -31,8 +32,7 @@ class GroupCreated implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            'group'        => GroupResource::make($this->group),
-            'conversation' => $this->conversation,
+            'conversation' => ConversationSubjectResource::make($this->conversationSubject),
         ];
     }
 

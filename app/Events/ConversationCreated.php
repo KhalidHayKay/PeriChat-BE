@@ -6,10 +6,12 @@ use App\Models\Message;
 use App\Models\Conversation;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
+use App\Http\Resources\MessageResource;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use App\Http\Resources\ConversationSubjectResource;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
@@ -21,7 +23,7 @@ class ConversationCreated implements ShouldBroadcastNow
      * Create a new event instance.
      */
     public function __construct(
-        public readonly Conversation $conversation,
+        public readonly object $conversationSubject,
         public readonly Message $message,
     ) {
         //
@@ -30,8 +32,8 @@ class ConversationCreated implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            'conversation' => $this->conversation,
-            'message'      => $this->message,
+            'conversation' => ConversationSubjectResource::make($this->conversationSubject),
+            'message'      => MessageResource::make($this->message),
         ];
     }
 
@@ -42,6 +44,7 @@ class ConversationCreated implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
+
         return [
             new PrivateChannel("user.{$this->message->receiver_id}"),
         ];
