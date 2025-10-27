@@ -28,10 +28,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::prefix('/group')->group(function () {
         Route::post('/new', [GroupController::class, 'create']);
-        // need to add middleware to check user has priviledge to perform group admin
-        Route::patch('/update', [GroupController::class, 'update']);
         Route::post('{group}/join', [GroupController::class, 'join']);
         Route::post('{group}/leave', [GroupController::class, 'leave']);
+        // need to add middleware to check user has priviledge to perform group admin
+        Route::patch('/update', [GroupController::class, 'update']);
     });
 
     Route::prefix('/messaging/conversation/{conversation}')->group(function () {

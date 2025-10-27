@@ -36,9 +36,9 @@ class GroupController extends Controller
 
     public function join(Request $request, Group $group)
     {
-        $group = $this->service->join($group, $request->user());
+        $subject = $this->service->join($group, $request->user());
 
-        return GroupResource::make($group);
+        return ConversationSubjectResource::make($subject);
     }
 
     public function leave(Request $request)

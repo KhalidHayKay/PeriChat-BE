@@ -4,7 +4,9 @@ namespace App\Events;
 
 use App\Models\User;
 use App\Models\Group;
+use App\Http\Resources\UserResource;
 use Illuminate\Broadcasting\Channel;
+use App\Http\Resources\GroupResource;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -29,8 +31,8 @@ class MemberJoined
     public function braodcastWith(): array
     {
         return [
-            'group' => $this->group,
-            'user'  => $this->user,
+            'group'  => GroupResource::make($this->group),
+            'member' => UserResource::make($this->user),
         ];
     }
 
@@ -42,7 +44,7 @@ class MemberJoined
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("channel.{$this->group->conversation->id}"),
+            new PrivateChannel("conversation.{$this->group->conversation->id}"),
         ];
     }
 }

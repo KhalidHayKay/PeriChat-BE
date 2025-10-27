@@ -21,7 +21,12 @@ class GroupService
 
         $conversation = Conversation::create(['group_id' => $group->id]);
 
-        $subject = $this->constructSubject($group, $user, $conversation);
+        $subject = $this->constructSubject(
+            $group,
+            $conversation,
+            "{$user->name} created this group"
+        );
+
         GroupCreated::dispatch($group, $subject);
 
         return $subject;
@@ -38,12 +43,18 @@ class GroupService
     {
         $group->users()->attach($user);
 
+        $subject = $this->constructSubject(
+            $group,
+            $group->conversation,
+            "You joined {$group->name}"
+        );
+
         MemberJoined::dispatch($group, $user);
 
-        return $group;
+        return $subject;
     }
 
-    private function constructSubject(Group $group, User $user, Conversation $conversation)
+    private function constructSubject(Group $group, Conversation $conversation, string $message)
     {
         return (object) [
             'id'                            => $conversation->id,
@@ -51,7 +62,7 @@ class GroupService
             'avatar'                        => $group->avatar,
             'type'                          => 'group',
             'type_id'                       => $group->id,
-            'last_message'                  => "{$user->name} created this group",
+            'last_message'                  => $message,
             'last_message_attachment_count' => 0,
             'last_message_date'             => $group->created_at,
             'last_message_sender'           => 0,
