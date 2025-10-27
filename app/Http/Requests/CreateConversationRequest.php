@@ -3,16 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
-class StoreMessageRequest extends FormRequest
+class CreateConversationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return Auth::check();
+        return true;
     }
 
     /**
@@ -24,10 +23,8 @@ class StoreMessageRequest extends FormRequest
     {
         return [
             'message'       => 'nullable|string|max:5000|required_without:attachment',
-            'group_id'      => 'required_without:receiver_id|nullable|exists:groups,id',
-            'receiver_id'   => 'required_without:group_id|nullable|exists:users,id',
             'attachments'   => 'nullable|array|max:10|required_without:message',
-            'attachments.*' => 'file|max:102400', // 100MB
+            'attachments.*' => 'file|max:102400',
         ];
     }
 }

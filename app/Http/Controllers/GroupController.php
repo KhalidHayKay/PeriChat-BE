@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Group;
+use Illuminate\Http\Request;
+use App\Services\GroupService;
+use App\Http\Resources\GroupResource;
+use App\Http\Resources\ConversationSubjectResource;
+
+class GroupController extends Controller
+{
+    public function __construct(readonly protected GroupService $service) {}
+
+    public function create(Request $request)
+    {
+        $data = $request->validate([
+            'name'      => 'required|string|max:255',
+            'members'   => 'required|array|min:1',
+            'members.*' => 'exists:users,id',
+        ]);
+
+        $subject = $this->service->make($data, $request->user());
+
+        return ConversationSubjectResource::make($subject);
+    }
+
+    public function update(Request $request, Group $group)
+    {
+        $data = $request->validate([]);
+
+        $group = $this->service->edit($data, $group);
+
+        return GroupResource::make($group);
+    }
+
+    public function join(Request $request, Group $group)
+    {
+        $subject = $this->service->join($group, $request->user());
+
+        return ConversationSubjectResource::make($subject);
+    }
+
+    public function leave(Request $request)
+    {
+        //
+    }
+}

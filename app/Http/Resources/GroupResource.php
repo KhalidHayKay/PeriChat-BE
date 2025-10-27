@@ -20,7 +20,9 @@ class GroupResource extends JsonResource
             'name'        => $this->name,
             'avatar'      => $this->avatar ? Storage::url($this->avatar) : null,
             'description' => $this->description,
-            'usersId'     => $this->users->pluck('users.id'),
+            'owner'       => $this->owner,
+            'userIds'     => $this->users->pluck('id'),
+            'created'     => $this->created_at,
         ];
     }
 }

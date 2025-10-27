@@ -53,7 +53,6 @@ class MessageService
         return $message;
     }
 
-
     public function resetUnread(Conversation $conversation, User $user)
     {
         $this->resolveUnreadQuery($conversation, $user)
@@ -89,8 +88,8 @@ class MessageService
     private function resolveUnreadQuery(Conversation $conversation, User $user)
     {
         $map = [
-            'table' => $conversation->group_id ? 'group_user' : 'user_conversation',
-            'foreign_key' => $conversation->group_id ? 'group_id' : 'conversation_id',
+            'table'         => $conversation->group_id ? 'group_user' : 'user_conversation',
+            'foreign_key'   => $conversation->group_id ? 'group_id' : 'conversation_id',
             'foreign_value' => $conversation->group_id ? $conversation->group_id : $conversation->id,
         ];
 
@@ -122,10 +121,10 @@ class MessageService
     private function terminateUnauthorized(User $user, Conversation $conversation)
     {
         if ($conversation->group_id) {
-            if (!$conversation->group->users->contains($user->id)) {
+            if (! $conversation->group->users->contains($user->id)) {
                 abort(403, 'Unauthorized access to this conversation.');
             }
-        } elseif (!$conversation->users->contains($user->id)) {
+        } elseif (! $conversation->users->contains($user->id)) {
             abort(403, 'Unauthorized access to this conversation.');
         }
     }

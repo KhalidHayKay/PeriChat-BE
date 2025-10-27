@@ -2,13 +2,9 @@
 
 namespace App\Models;
 
-use App\Models\SocialAccount;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -57,11 +53,6 @@ class User extends Authenticatable
         ];
     }
 
-    public function socialAccounts()
-    {
-        return $this->hasMany(SocialAccount::class);
-    }
-
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class);
@@ -84,43 +75,5 @@ class User extends Authenticatable
         $this->tokens()->where('name', $requestAgent)->delete();
 
         return $this->createToken($requestAgent);
-    }
-
-    public static function getUsersExceptUser(User $user): Collection
-    {
-        $query = User::select([
-            'users.*',
-            'c.id as c_id',
-            'm.created_at as last_message_date',
-            'm.sender_id as last_message_sender',
-            'm.message as last_message',
-            DB::raw('(SELECT COUNT(*) FROM message_attachments WHERE message_attachments.message_id = m.id) as last_message_attachment_count'),
-        ])
-            ->where('users.id', '!=', $user->id)
-            ->leftJoin('user_conversation as uc', 'uc.user_id', '=', 'users.id')
-            ->leftJoin('conversations as c', 'c.id', '=', 'uc.conversation_id')
-            ->leftJoin('messages as m', 'm.id', '=', 'c.last_message_id')
-            ->where(function ($query) use ($user) {
-                $query->where('m.sender_id', '=', $user->id)
-                    ->orWhere('m.receiver_id', '=', $user->id);
-            })
-            ->orderBy('m.created_at', 'desc')
-            ->orderBy('users.name');;
-
-        return $query->get();
-    }
-
-    public function getUnreadCount(?int $conversationId)
-    {
-        if (! $conversationId && ! $this->c_id) {
-            return null;
-        }
-
-        $query = DB::table('user_conversation')
-            ->select('unread_messages_count')
-            ->where('conversation_id', $this->c_id ?: $conversationId)
-            ->where('user_id', Auth::id());
-
-        return $query->first()?->unread_messages_count;
     }
 }

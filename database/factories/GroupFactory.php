@@ -19,7 +19,7 @@ class GroupFactory extends Factory
         return [
             'name'        => $this->faker->word(),
             'description' => $this->faker->sentence(),
-            'is_private'  => $this->faker->boolean(),
+            'is_private'  => false //$this->faker->boolean(),
         ];
     }
 }

@@ -4,7 +4,12 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Group;
+use App\Models\Message;
+use App\Models\Conversation;
 use Illuminate\Support\Facades\DB;
+use App\Events\ConversationCreated;
+use Illuminate\Database\Query\Builder;
+use App\Http\Resources\ConversationSubjectResource;
 
 class ConversationService
 {
@@ -24,55 +29,88 @@ class ConversationService
 
     public static function users(User $user)
     {
-        $result = User::where('id', '!=', $user->id)
-            ->whereNotExists(function ($query) use ($user) {
+        return User::where('id', '!=', $user->id)
+            ->whereNotExists(function (Builder $query) use ($user) {
                 $query->select(DB::raw(1))
                     ->from('user_conversation as uc1')
-                    ->join(
-                        'user_conversation as uc2',
-                        'uc2.conversation_id',
-                        '=',
-                        'uc1.conversation_id'
-                    )
-                    ->whereRaw('uc1.user_id = users.id')
-                    ->where('uc2.user_id', '=', $user->id);
+                    ->join('user_conversation as uc2', 'uc2.conversation_id', '=', 'uc1.conversation_id')
+                    ->whereColumn('uc1.user_id', 'users.id')
+                    ->where('uc2.user_id', $user->id);
             })
-            ->orderBy('name')->get();
-
-        return $result;
+            ->orderBy('name')
+            ->get();
     }
 
     public static function groups(User $user)
     {
-        $result = Group::where('is_private', false)
-            ->whereNotExists(function ($query) use ($user) {
+        return Group::where('is_private', false)
+            ->whereNotExists(function (Builder $query) use ($user) {
                 $query->select(DB::raw(1))
                     ->from('group_user')
-                    ->where('group_user.group_id', '=', 'groups.id')
-                    ->where('group_user.user_id', '=', $user->id);
+                    ->whereColumn('group_user.group_id', 'groups.id')
+                    ->where('group_user.user_id', $user->id);
             })
-            ->with('users:id')
             ->orderBy('name')
             ->get();
-
-        return $result;
     }
 
     public static function groupUsers(User $user)
     {
-        $result = User::where('users.id', '!=', $user->id)
-            ->leftJoin('user_conversation as uc', 'uc.user_id', '=', 'users.id')
-            ->leftJoin('conversations as c', 'c.id', '=', 'uc.conversation_id')
-            ->leftJoin('messages as m', 'm.id', '=', 'c.last_message_id')
-            ->where(function ($query) use ($user) {
-                $query->where('m.sender_id', '=', $user->id)
-                    ->orWhere('m.receiver_id', '=', $user->id);
+        return User::where('users.id', '!=', $user->id)
+            ->whereExists(function (Builder $query) use ($user) {
+                $query->select(DB::raw(1))
+                    ->from('user_conversation as uc1')
+                    ->join('user_conversation as uc2', 'uc2.conversation_id', '=', 'uc1.conversation_id')
+                    ->whereColumn('uc1.user_id', 'users.id')
+                    ->where('uc2.user_id', $user->id);
             })
-            ->orderBy('m.created_at', 'desc')
-            ->orderBy('users.name')
+            ->orderBy('name')
             ->get();
+    }
 
-        return $result;
+    public function createWithFirstMessage(
+        User $user,
+        User $otherUser,
+        array $data,
+        MessageService $messageService,
+    ): array {
+        $conversation = Conversation::create();
+        $conversation->users()->attach([$user->id, $otherUser->id]);
+
+        $data['receiver_id'] = $otherUser->id;
+        $message             = $messageService->store($data, $conversation, $user);
+
+        $subject = $this->constructSubject(
+            $user,
+            $message,
+            $conversation,
+        );
+
+        ConversationCreated::dispatch($subject, $message);
+
+        $subject = $this->constructSubject(
+            $otherUser,
+            $message,
+            $conversation,
+        );
+
+        return [$subject, $message];
+    }
+
+    private function constructSubject(User $user, Message $message, Conversation $conversation)
+    {
+        return (object) [
+            'id'                            => $conversation->id,
+            'name'                          => $user->name,
+            'avatar'                        => $user->avatar,
+            'type'                          => 'private',
+            'type_id'                       => $user->id,
+            'last_message'                  => $message->message,
+            'last_message_attachment_count' => $message->attachments()->count(),
+            'last_message_date'             => $message->created_at,
+            'last_message_sender'           => $message->sender_id,
+            'unread_messages_count'         => 0,
+        ];
     }
 
     private function getPrivateSubjects(User $user)
@@ -115,7 +153,7 @@ class ConversationService
                 'c.id as id',
                 'm.message as last_message',
                 'm.sender_id as last_message_sender',
-                'm.created_at as last_message_date',
+                DB::raw('COALESCE(m.created_at, g.created_at) as last_message_date'),
                 'gu.unread_messages_count',
                 DB::raw('(SELECT COUNT(*) FROM message_attachments WHERE message_attachments.message_id = m.id) as last_message_attachment_count'),
                 DB::raw("'group' as type"),
