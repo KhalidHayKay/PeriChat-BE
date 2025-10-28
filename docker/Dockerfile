@@ -12,11 +12,13 @@ RUN apk update && apk add --no-cache \
     oniguruma-dev \
     bash \
     mysql-client \
+    postgresql-client \
+    postgresql-dev \
     nginx \
     supervisor
 
 # PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql intl mbstring xml
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql intl mbstring xml
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
