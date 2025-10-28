@@ -43,6 +43,9 @@ RUN composer run-script post-autoload-dump \
     && php artisan config:clear \
     && php artisan route:clear
 
+# Copy custom PHP configuration
+COPY docker/php.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Copy nginx config
 COPY docker/nginx/production.conf /etc/nginx/nginx.conf
 
