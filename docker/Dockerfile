@@ -12,11 +12,13 @@ RUN apk update && apk add --no-cache \
     oniguruma-dev \
     bash \
     mysql-client \
+    postgresql-client \
+    postgresql-dev \
     nginx \
     supervisor
 
 # PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql intl mbstring xml
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql intl mbstring xml
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -40,6 +42,9 @@ RUN chown -R www-data:www-data . && chmod -R 755 .
 RUN composer run-script post-autoload-dump \
     && php artisan config:clear \
     && php artisan route:clear
+
+# Copy custom PHP configuration
+COPY docker/php.ini /usr/local/etc/php/conf.d/uploads.ini
 
 # Copy nginx config
 COPY docker/nginx/production.conf /etc/nginx/nginx.conf

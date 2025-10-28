@@ -13,8 +13,9 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class MemberJoined
+class MemberJoined implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -28,7 +29,7 @@ class MemberJoined
         //
     }
 
-    public function braodcastWith(): array
+    public function broadcastWith(): array
     {
         return [
             'group'  => GroupResource::make($this->group),
