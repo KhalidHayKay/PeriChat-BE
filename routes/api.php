@@ -6,10 +6,6 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ConversationController;
 
-Route::get('/health', function () {
-    return response()->json(['status' => 'ok', 'timestamp' => now()]);
-});
-
 Route::prefix('/auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);

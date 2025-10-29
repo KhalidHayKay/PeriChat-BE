@@ -17,7 +17,8 @@ class GroupService
             'owner_id' => $user->id,
         ]);
 
-        $group->users()->attach(array_unique([...$verData['members'], $user]));
+        $group->users()->attach(array_unique($verData['members']));
+        $group->users()->attach($user->id, ['role' => 'admin']);
 
         $conversation = Conversation::create(['group_id' => $group->id]);
 
