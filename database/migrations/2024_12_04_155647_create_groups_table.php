@@ -26,10 +26,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('group_id')->constrained('groups')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('role', array_map(
-                fn (GroupRoleEnum $role) => $role->value,
-                GroupRoleEnum::cases()
-            ));
+            $table->enum('role', ['member', 'admin'])->default('member');
             $table->integer('unread_messages_count')->default(0);
             $table->timestamp('blocked_at')->nullable();
             $table->timestamps();

@@ -38,6 +38,11 @@ COPY . .
 # Permissions
 RUN chown -R www-data:www-data . && chmod -R 755 .
 
+# Ensure nginx has proper writable directories
+RUN mkdir -p /var/lib/nginx/tmp /var/tmp/nginx /var/log/nginx && \
+    chown -R www-data:www-data /var/lib/nginx /var/tmp/nginx /var/log/nginx && \
+    chmod -R 755 /var/lib/nginx /var/tmp/nginx /var/log/nginx
+
 # Artisan optimizations
 RUN composer run-script post-autoload-dump \
     && php artisan config:clear \

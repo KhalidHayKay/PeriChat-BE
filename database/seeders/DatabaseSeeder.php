@@ -2,18 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Enums\ConversationTypeEnum;
 use App\Models\Conversation;
 use App\Models\Group;
 use App\Models\Message;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\Sequence;
-use Illuminate\Database\Grammar;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
