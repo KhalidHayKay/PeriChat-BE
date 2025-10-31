@@ -23,11 +23,11 @@ class StoreMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message'       => 'nullable|string|max:5000|required_without:attachment',
-            'group_id'      => 'required_without:receiver_id|nullable|exists:groups,id',
-            'receiver_id'   => 'required_without:group_id|nullable|exists:users,id',
-            'attachments'   => 'nullable|array|max:10|required_without:message',
-            'attachments.*' => 'file|max:102400', // 100MB
+            'message'       => 'string|max:5000|required_without:attachment',
+            'group_id'      => 'required_without:receiver_id|exists:groups,id',
+            'receiver_id'   => 'required_without:group_id|exists:users,id',
+            'attachments'   => 'array|max:10|required_without:message',
+            'attachments.*' => 'file|max:102400',
         ];
     }
 }
