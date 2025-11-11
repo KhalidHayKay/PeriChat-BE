@@ -17,7 +17,7 @@ class MessageFactory extends Factory
     public function definition(): array
     {
         return [
-            'message'    => $this->faker->realText(150),
+            'message'    => $this->faker->realText(50),
             'created_at' => $this->faker->dateTimeBetween('-1 year'),
         ];
     }

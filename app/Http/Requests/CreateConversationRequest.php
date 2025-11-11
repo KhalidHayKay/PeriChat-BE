@@ -22,7 +22,7 @@ class CreateConversationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message'       => 'required_without:attachments|string|max:5000',
+            'message'       => 'nullable|required_without:attachments|string|max:5000',
             'attachments'   => 'required_without:message|array|max:10',
             'attachments.*' => 'file|max:102400',
         ];
