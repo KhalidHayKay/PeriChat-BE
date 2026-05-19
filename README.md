@@ -1,61 +1,201 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PeriChat — Messaging App (Backend)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A real-time messaging API built with Laravel, supporting private conversations, public groups, file sharing, and live message synchronization over WebSockets.
 
-## About Laravel
+This project demonstrates practical backend engineering concepts including service-oriented architecture, real-time event broadcasting, API authentication, and containerized deployment.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🌍 Try it Live
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+[https://perichat-livid.vercel.app](https://perichat-livid.vercel.app)
 
-## Learning Laravel
+Frontend Repository: [PeriChat](https://github.com/KhalidHayKay/PeriChat)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## What It Does
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Handles user authentication via Sanctum token-based auth
+- Manages private one-to-one and public group conversations
+- Delivers messages in real-time via WebSockets (Laravel Reverb / Pusher)
+- Tracks unread message counts per user per conversation
+- Supports file and media attachments in messages
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Architecture
 
-### Premium Partners
+The application is organized with clean separation of concerns:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- **Authentication Layer** — Sanctum token auth for API clients
+- **Controller Layer** — HTTP request handling and input validation
+- **Service Layer** — Business logic and data operations
+- **Broadcasting Layer** — Real-time event delivery via WebSockets
+- **Storage Layer** — File upload and attachment management
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🚀 Features
 
-## Code of Conduct
+- 🔐 Sanctum token-based authentication
+- 💬 Private one-to-one conversations
+- 👥 Public and private group conversations
+- 📁 File and media sharing
+- ⚡ Real-time message delivery via WebSockets
+- 🔔 Unread message count tracking
+- 😊 Emoji support
+- 🐳 Docker and Docker Compose setup
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🏗 Project Structure
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+PeriChat-BE/
+├── app/
+│   ├── Events/                # Broadcasting events
+│   ├── Http/
+│   │   ├── Controllers/       # API endpoints
+│   │   ├── Requests/          # Input validation
+│   │   └── Resources/         # API response formatting
+│   ├── Models/                # Eloquent models
+│   └── Services/              # Business logic layer
+├── database/
+│   ├── migrations/            # Database schema
+│   └── seeders/               # Database seeders
+├── routes/
+│   └── api.php                # API route definitions
+├── docker/                    # Docker setup
+├── .env.example               # Environment template
+└── composer.json              # PHP dependencies
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## ⚙️ How It Works
+
+1. Users authenticate and receive a Sanctum token for API access
+2. Private conversations are initiated between two users
+3. Groups are created and users can join via group ID
+4. Messages are stored and broadcasted to conversation channels via WebSockets
+5. Unread counts are incremented on new messages and reset when a conversation is viewed
+6. File attachments are stored and linked to their messages
+
+---
+
+## 🧪 Getting Started
+
+### Prerequisites
+
+- Docker and Docker Compose
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/KhalidHayKay/PeriChat-BE.git
+cd PeriChat-BE
+```
+
+### 2️⃣ Setup Environment Variables
+
+```bash
+cp .env.example .env
+```
+
+Configure your `.env` with database credentials, frontend URL, and WebSocket settings.
+
+### 3️⃣ Start Services
+
+```bash
+cd docker
+docker-compose up -d
+```
+
+### 4️⃣ Initialize the Database
+
+```bash
+docker-compose exec app composer install
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan migrate
+```
+
+The API will be available at: [http://localhost:8000](http://localhost:8000)
+
+---
+
+## 🔑 API Endpoints
+
+### Authentication
+
+```
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+```
+
+### Conversations
+
+```
+GET    /api/conversation/subjects
+POST   /api/conversation/create/private/{user}
+```
+
+### Messaging
+
+```
+GET    /api/messaging/conversation/{id}
+POST   /api/messaging/conversation/{id}/send
+POST   /api/messaging/conversation/{id}/unread/reset
+```
+
+### Groups
+
+```
+POST   /api/group/new
+POST   /api/group/{id}/join
+POST   /api/group/{id}/leave
+```
+
+---
+
+## 🔄 Real-Time Events
+
+The backend broadcasts these events over WebSocket channels:
+
+```
+MessageSent           # New message in a conversation
+ConversationCreated   # New conversation started
+GroupCreated          # New group created
+MemberJoined          # User joined a group
+```
+
+---
+
+## 🔐 Security
+
+- Sanctum token authentication on all protected routes
+- CORS protection with frontend domain whitelisting
+- Bcrypt password hashing
+- SQL injection protection via Eloquent ORM
+- Input validation on all API endpoints
+- Private channel authorization for WebSocket broadcasts
+
+---
+
+## 📚 Built to Practice
+
+- RESTful API design with Laravel
+- Real-time broadcasting with WebSockets
+- Service-oriented architecture
+- Eloquent ORM and database relationships
+- Event-driven architecture
+- Docker containerization
+
+---
+
+## 👨‍💻 Author
+
+Built by Khalid
+
+**Tech Stack:** Laravel 12 · Laravel Reverb · Sanctum · PostgreSQL · Docker · Nginx
